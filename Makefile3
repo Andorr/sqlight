@@ -1,0 +1,25 @@
+COMPILE_FLAGS := -O3 -std=c++11
+LINK_LIBS :=
+BINARY := main
+SOURCE_DIR := src
+
+HEADER_FILES := $(shell find $(SOURCEDIR) -name '*.hpp')
+CPP_SOURCE_FILES := $(shell find $(SOURCEDIR) -name '*.cpp')
+OBJECT_FILES := $(patsubst %.cpp,%.o,$(CPP_SOURCE_FILES))
+
+.PHONY: build
+build: $(BINARY)
+
+# Compile C++
+%.o: %.cpp $(HEADER_FILES)
+	echo $(HEADER_FILES)
+	g++ $(COMPILE_FLAGS) -c -o $@ $<
+
+# Link
+$(BINARY): $(OBJECT_FILES)
+	$(CC) -o $@ $^ $(LINK_LIBS)
+
+.PHONY: clean
+clean:
+	find . -type f -name "*.o" -delete
+	rm -f $(BINARY)
