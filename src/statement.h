@@ -3,9 +3,13 @@
 
 #include <iostream>
 
+#include "table.h"
+
+
 typedef enum {
     PREPARE_SUCCESS, 
-    PREPARE_UNRECOGNIZED_STATEMENT 
+    PREPARE_UNRECOGNIZED_STATEMENT, 
+    PREPARE_SYNTAX_ERROR,
 } PrepareResult;
 
 typedef enum {
@@ -14,13 +18,30 @@ typedef enum {
     STATEMENT_SELECT,
 } StatementType;
 
+typedef enum {
+    EXECUTE_NONE,
+    EXECUTE_SUCCESS,
+    EXECUTE_TABLE_FULL,
+} ExecutionResult;
+
 class Statement {
     private:
         StatementType type;
 
     public:
+        Row row_to_insert;
+        Statement(){};
         Statement(StatementType type): type(type) {};
-        void execute();
+        Statement(StatementType type, Row row): type(type), row_to_insert(row) {};
+        // ~Statement() {
+        //     std::cout << "Deref Statement" << std::endl;
+        // }
+        ExecutionResult execute_insert(Table &table);
+        ExecutionResult execute_select(Table &table);
+        ExecutionResult execute(Table &table);
+        friend std::ostream& operator<<(std::ostream& os, const Statement &s);
 };
+
+
 
 #endif

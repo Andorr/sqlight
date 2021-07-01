@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <tuple>
+#include <memory>
 #include "input.h"
 
 
@@ -44,13 +45,21 @@ MetaCommandResult InputBuffer::parse_and_do_meta_command() {
     return res;
 }
 
-std::tuple<StatementType, PrepareResult> InputBuffer::parse_statement_type() {
+std::tuple<std::shared_ptr<Statement>, PrepareResult> InputBuffer::parse_statement_type() {
+    
     if(this->buffer.rfind("insert", 0) == 0) {
-        return std::make_tuple(STATEMENT_INSERT, PREPARE_SUCCESS);
+        Row row;
+        int args_assigned = std::sscanf(buffer.c_str(), "insert %d %s %s", &row.id, row.username, row.email);
+        if(args_assigned < 3) {
+            return std::make_tuple(nullptr, PREPARE_SYNTAX_ERROR);
+        }
+        auto s = std::make_shared<Statement>(STATEMENT_INSERT, row);
+        return std::make_tuple(s, PREPARE_SUCCESS);
     }
     else if(this->buffer.rfind("select", 0) == 0) {
-        return std::make_tuple(STATEMENT_SELECT, PREPARE_SUCCESS);
+        auto s = std::make_shared<Statement>(STATEMENT_SELECT);
+        return std::make_tuple(s, PREPARE_SUCCESS);
     }
        
-    return std::make_tuple(STATEMENT_NONE, PREPARE_UNRECOGNIZED_STATEMENT);
+    return std::make_tuple(nullptr, PREPARE_UNRECOGNIZED_STATEMENT);
 }

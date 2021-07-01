@@ -11,10 +11,8 @@ typedef enum {
 
 class InputBuffer {
 
-    private:
-        std::string buffer;
-
     public:
+        std::string buffer;
         std::string prompt = "db > ";
 
         InputBuffer() {
@@ -24,7 +22,7 @@ class InputBuffer {
     void read();
     MetaCommandResult parse_meta_command();
     MetaCommandResult parse_and_do_meta_command();
-    std::tuple<StatementType, PrepareResult> parse_statement_type();
+    std::tuple<std::shared_ptr<Statement>, PrepareResult> parse_statement_type();
 
 };
 
