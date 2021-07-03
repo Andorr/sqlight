@@ -1,15 +1,15 @@
 #include <iostream>
 #include <fstream>
 #include <tuple>
-#include "json.hpp"
+// #include "json.hpp"
 
 #include "input.h"
 #include "statement.h"
 #include "table.h"
 
-using json = nlohmann::json;
+// using json = nlohmann::json;
 
-json read_json(std::string filename);
+// json read_json(std::string filename);
 
 class Scanner {
 
@@ -65,9 +65,9 @@ int main() {
 	return 0;
 }
 
-json read_json(std::string filename) {
-	std::fstream data(filename);
-	json j;
-	data >> j;
-	return j;
-}
+// json read_json(std::string filename) {
+// 	std::fstream data(filename);
+// 	json j;
+// 	data >> j;
+// 	return j;
+// }
