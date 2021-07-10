@@ -20,6 +20,7 @@ ExecutionResult Statement::execute_insert(Table &table) {
 
     row_to_insert.serialize(table.row_slot(table.num_rows));
     table.num_rows++;
+    std::cout << "Executed." << std::endl;
     return EXECUTE_SUCCESS;
 }
 

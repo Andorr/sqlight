@@ -1,13 +1,24 @@
 #define CONFIG_CATCH_MAIN
+#include <cstdio>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
+#include <vector>
+#include <ranges>
+#include <string_view>
+
 #include "catch_amalgamated.hpp"
+#include "util.h"
 
-unsigned int Factorial( unsigned int number ) {
-    return number <= 1 ? number : Factorial(number-1)*number;
-}
-
-TEST_CASE( "Factorials are computed", "[factorial]" ) {
-    REQUIRE( Factorial(1) == 1 );
-    REQUIRE( Factorial(2) == 2 );
-    REQUIRE( Factorial(3) == 6 );
-    REQUIRE( Factorial(10) == 3628800 );
+TEST_CASE( "string_split must split string", "[split]" ) {
+    std::vector<std::string> result = util::string_split("Hello world! :D", ' ');
+    REQUIRE( result.size() == 3);
+    
+    std::vector<std::string> expected = {"Hello", "world!", ":D"};
+    for(std::vector<std::string>::size_type i = 0; i < expected.size(); i++) {
+        REQUIRE(expected[i] == result[i]);
+        i++;
+    }
 }

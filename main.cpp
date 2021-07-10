@@ -31,13 +31,16 @@ int main() {
 		if(res == META_COMMAND_UNRECOGNIZED_COMMAND) {
 			continue;
 		}
-		
+
 		// Input is not a meta command, exec statement
 		auto result = input.parse_statement_type();
 		
 		switch(std::get<PrepareResult>(result)) {
 			case PREPARE_SUCCESS:
 				break;
+			case PREPARE_STRING_TOO_LONG:
+				printf("String is too long.\n");
+				continue;
 			case PREPARE_UNRECOGNIZED_STATEMENT:
 				printf("Unrecognized keyword.\n");
 				continue;
@@ -54,10 +57,12 @@ int main() {
 		case EXECUTE_SUCCESS:
 			break;
 		case EXECUTE_TABLE_FULL:
-			std::cout << "Error: table full" << std::endl;
+			std::cout << "Error: table full";
+			std::cout << std::endl;
 			break;
 		case EXECUTE_NONE:
-			std::cout << "Invalid statement type" << std::endl;
+			std::cout << "Invalid statement type";
+			std::cout << std::endl;
 			break;
 		}
 	}
