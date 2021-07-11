@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	cd ./build/ && make
+	cd ./build/ &&  $(MAKE) --no-print-directory
 
 run:
 	./build/main .data/sqlight.db

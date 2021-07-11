@@ -32,7 +32,7 @@ describe 'database' do
     end
 
     it 'prints error message when table is full' do
-        script = (1..4900).map do |i| 
+        script = (0..1300).map do |i| 
             "insert #{i} user#{i} person#{i}@example.com"
         end
 

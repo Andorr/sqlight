@@ -1,3 +1,4 @@
+#include "row.h"
 #include "statement.h"
 
 ExecutionResult Statement::execute(Table &table) {

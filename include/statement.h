@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "row.h"
 #include "table.h"
 
 
