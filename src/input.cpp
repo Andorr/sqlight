@@ -31,23 +31,6 @@ MetaCommandResult InputBuffer::parse_meta_command() {
     }
 }
 
-MetaCommandResult InputBuffer::parse_and_do_meta_command() {
-    MetaCommandResult res = this->parse_meta_command();
-    switch (res)
-    {
-    case META_COMMAND_EXIT:
-        std::cout << "Exiting..." << std::endl;
-        exit(EXIT_SUCCESS);
-    case META_COMMAND_UNRECOGNIZED_COMMAND:
-        std::cout << "Unrecognized command: '" << this->buffer << "'." << std::endl;
-        break;
-    default:
-        break;
-    }
-
-    return res;
-}
-
 std::tuple<std::shared_ptr<Statement>, PrepareResult> InputBuffer::parse_statement_type() {
     
     if(this->buffer.rfind("insert", 0) == 0) {

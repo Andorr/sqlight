@@ -21,7 +21,6 @@ class InputBuffer {
 
     void read();
     MetaCommandResult parse_meta_command();
-    MetaCommandResult parse_and_do_meta_command();
     std::tuple<std::shared_ptr<Statement>, PrepareResult> parse_statement_type();
     std::tuple<std::shared_ptr<Statement>, PrepareResult> prepare_insert();
 };
