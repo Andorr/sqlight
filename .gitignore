@@ -3,3 +3,4 @@ build
 .old
 play.cpp
 play
+vcpkg_installed

@@ -19,6 +19,5 @@ TEST_CASE( "string_split must split string", "[split]" ) {
     std::vector<std::string> expected = {"Hello", "world!", ":D"};
     for(std::vector<std::string>::size_type i = 0; i < expected.size(); i++) {
         REQUIRE(expected[i] == result[i]);
-        i++;
     }
 }

@@ -12,7 +12,7 @@ rbtest:
 	rspec tests_spec.rb
 
 cmake:
-	cmake -S . -B build
+	cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=/usr/share/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 play: play.cpp
 	g++ play.cpp -o play -std=c++20 -Wall

@@ -15,15 +15,6 @@ Table::~Table() {
     close();
 }
 
-void* Table::row_slot(uint32_t row_num)  {
-    uint32_t page_num = row_num / ROWS_PER_PAGE;
-    void *page = this->pager->get_page(page_num);
-    uint32_t row_offset = row_num % ROWS_PER_PAGE;
-    uint32_t byte_offset = row_offset * ROW_SIZE;
-    return ((uint8_t*)page) + byte_offset;
-}
-
-
 void Table::close() {
     uint32_t num_full_pages = num_rows / ROWS_PER_PAGE;
 
