@@ -5,6 +5,7 @@
 #include <vector>
 #include <memory>
 
+
 #include "input.h"
 #include "util.h"
 
@@ -26,6 +27,10 @@ MetaCommandResult InputBuffer::parse_meta_command() {
 
     if(this->buffer.rfind(".exit", 0) == 0) {
         return META_COMMAND_EXIT;
+    } else if(this->buffer.rfind(".constants", 0) == 0) {
+        return META_COMMAND_CONSTANTS;
+    } else if(this->buffer.rfind(".btree", 0) == 0) {
+        return META_COMMAND_BTREE;
     } else {
         return META_COMMAND_UNRECOGNIZED_COMMAND;
     }

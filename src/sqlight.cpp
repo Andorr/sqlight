@@ -6,6 +6,7 @@
 #include "input.h"
 #include "statement.h"
 #include "table.h"
+#include "node.h"
 #include "sqlight.h"
 
 
@@ -29,6 +30,14 @@ SQLight::SQLight(std::string filename) {
                 delete table;
                 std::cout << "Exiting..." << std::endl;
                 exit(EXIT_SUCCESS);
+			case META_COMMAND_CONSTANTS:
+				printf("Constants:\n");
+				print_constants();
+				continue;
+			case META_COMMAND_BTREE:
+				printf("Tree:\n");
+				print_leaf_node(table->pager->get_page(0));
+				continue;
             case META_COMMAND_UNRECOGNIZED_COMMAND:
                 std::cout << "Unrecognized command: '" << input.buffer << "'." << std::endl;
                 continue;
@@ -63,6 +72,9 @@ SQLight::SQLight(std::string filename) {
 		case EXECUTE_TABLE_FULL:
 			std::cout << "Error: table full";
 			std::cout << std::endl;
+			break;
+		case EXECUTE_DUPLICATE_KEY:
+			std::cout << "Error: Duplicate key.\n" << std::endl;
 			break;
 		case EXECUTE_NONE:
 			std::cout << "Invalid statement type";

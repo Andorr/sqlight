@@ -4,11 +4,19 @@
 #include "table.h"
 #include "util.h"
 #include "pager.h"
+#include "node.h"
+#include "cursor.h"
 
 Table::Table(std::string filename) {
     Pager *pager = new Pager(filename);
-    this->num_rows = pager->file_length / ROW_SIZE;
     this->pager = pager;
+    this->root_page_num = 0;
+    
+    if(this->pager->num_pages == 0) {
+        // New database file. Initialize page 0 as leaf node.
+        void *root_node = this->pager->get_page(0);
+        initialize_leaf_node(root_node);
+    }
 }
 
 Table::~Table() {
@@ -16,28 +24,51 @@ Table::~Table() {
 }
 
 void Table::close() {
-    uint32_t num_full_pages = num_rows / ROWS_PER_PAGE;
-
     // Flush memory
-    for(uint32_t i = 0; i < num_full_pages; i++) {
+    for(uint32_t i = 0; i < pager->num_pages; i++) {
         if(pager->pages[i] == NULL) {
             continue;
         }
-        pager->flush(i, PAGE_SIZE);
+        pager->flush(i);
         pager->pages[i] = NULL;
-    }
-    
-    // There may be a partial page to write to the end of the file
-    // This should not be needed after we switch to a B-tree
-    uint32_t num_additional_rows = num_rows % ROWS_PER_PAGE;
-    if(num_additional_rows > 0) {
-        uint32_t page_num = num_full_pages;
-        if(pager->pages[page_num] != NULL) {
-            pager->flush(page_num, num_additional_rows * ROW_SIZE);
-            pager->pages[page_num] = NULL;
-        }
     }
 
     delete pager;
 }
 
+Cursor* Table::find(uint32_t key) {
+    void *root_node = pager->get_page(root_page_num);
+
+    if(get_node_type(root_node) == NODE_LEAF) {
+        return leaf_node_find(root_page_num, key);
+    } else {
+        printf("TODO: Need to implement searching an internal node\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+Cursor* Table::leaf_node_find(uint32_t page_num, uint32_t key) {
+    void *node = pager->get_page(page_num);
+    uint32_t num_cells = *leaf_node_num_cells(node);
+
+    Cursor* cursor = new Cursor(*this, page_num, 0, false);
+
+    uint32_t min_index = 0;
+    uint32_t one_past_max_index = num_cells;
+    while (one_past_max_index != min_index) {
+        uint32_t index = (min_index + one_past_max_index) / 2;
+        uint32_t key_at_index = *leaf_node_key(node, index);
+        if(key == key_at_index) {
+            cursor->cell_num = index;
+            return cursor;
+        }
+        if(key < key_at_index) {
+            one_past_max_index = index;
+        } else {
+            min_index = index + 1;
+        }
+    }
+
+    cursor->cell_num = min_index;
+    return cursor;
+}

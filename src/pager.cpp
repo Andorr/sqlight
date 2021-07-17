@@ -20,8 +20,13 @@ Pager::Pager(std::string filename) {
     auto file_size = this->file.tellg();
 
     this->file_length = file_size;
+    this->num_pages = file_size / PAGE_SIZE;
     
-    
+    if(file_size % PAGE_SIZE != 0) {
+        printf("Db file is not a whole number of pages. Corrupt file.\n");
+        exit(EXIT_FAILURE);
+    }
+
     for(uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         this->pages[i] = NULL;
     }
@@ -59,24 +64,29 @@ void* Pager::get_page(uint32_t page_num) {
         }
 
         pages[page_num] = page;
+
+        if(page_num >= num_pages) {
+            num_pages = page_num + 1;      
+        }
+
     }
 
     return pages[page_num];
 }
 
-void Pager::flush(uint32_t page_num, uint32_t size) {
+void Pager::flush(uint32_t page_num) {
     if(pages[page_num] == NULL) {
         printf("Tried to flush null page\n");
         exit(EXIT_FAILURE);
     }
 
     file.seekp(page_num * PAGE_SIZE, std::ios::beg);
-    
     if(errno > 0) {
         printf("Error seeking: %d - %s\n", errno, std::strerror(errno));
         exit(EXIT_FAILURE);
     }
-    file.write((char*)pages[page_num], size);
+    
+    file.write((char*)pages[page_num], PAGE_SIZE);
     if(errno > 0) {
         printf("Error writing: %d - %s\n", errno, std::strerror(errno));
         exit(EXIT_FAILURE);

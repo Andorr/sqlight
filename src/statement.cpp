@@ -1,5 +1,6 @@
 #include "row.h"
 #include "statement.h"
+#include "node.h"
 #include "cursor.h"
 
 ExecutionResult Statement::execute(Table &table) {
@@ -16,14 +17,24 @@ ExecutionResult Statement::execute(Table &table) {
 }
 
 ExecutionResult Statement::execute_insert(Table &table) {
-    if(table.num_rows >= TABLE_MAX_ROWS) {
+    void *node = table.pager->get_page(table.root_page_num);
+    uint32_t num_cells = *leaf_node_num_cells(node);
+    if(num_cells >= LEAF_NODE_MAX_CELLS) {
         return EXECUTE_TABLE_FULL;
     }
-    Cursor cursor_end = Cursor::from_end(table);
 
+    uint32_t key_to_insert = row_to_insert.id;
+    Cursor* cursor = table.find(key_to_insert); 
+    // Cursor cursor_end = Cursor::from_end(table);
 
-    row_to_insert.serialize(cursor_end.value());
-    table.num_rows++;
+    if(cursor->cell_num < num_cells) {
+        uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);
+        if(key_at_index == key_to_insert) {
+            return EXECUTE_DUPLICATE_KEY;
+        }
+    }
+
+    cursor->insert(row_to_insert.id, &row_to_insert);
     std::cout << "Executed." << std::endl;
     return EXECUTE_SUCCESS;
 }
