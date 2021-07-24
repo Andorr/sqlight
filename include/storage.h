@@ -2,14 +2,14 @@
 #define STORAGE_H
 
 // Row properties
-#define COLUMN_USERNAME_SIZE 32
-#define COLUMN_EMAIL_SIZE 255
+#define COLUMN_USERNAME_SIZE 32 + sizeof(std::size_t)
+#define COLUMN_EMAIL_SIZE 255 + sizeof(std::size_t)
 
 #define size_of_attribute(Struct, Attribute) sizeof(((Struct*)0)->Attribute)
 
 const uint32_t ID_SIZE = sizeof(uint32_t);
-const uint32_t USERNAME_SIZE = COLUMN_USERNAME_SIZE + sizeof(std::size_t);
-const uint32_t EMAIL_SIZE = COLUMN_EMAIL_SIZE + sizeof(std::size_t);
+const uint32_t USERNAME_SIZE = COLUMN_USERNAME_SIZE;
+const uint32_t EMAIL_SIZE = COLUMN_EMAIL_SIZE;
 const uint32_t ID_OFFSET = 0;
 const uint32_t USERNAME_OFFSET = ID_OFFSET + ID_SIZE;
 const uint32_t EMAIL_OFFSET = USERNAME_OFFSET + USERNAME_SIZE;

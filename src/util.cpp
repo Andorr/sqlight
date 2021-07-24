@@ -27,6 +27,5 @@ void util::serialize_string(std::string s, uint8_t *dest) {
 std::string util::deserialize_string(std::string &s, uint8_t *source) {
     std::size_t size;
     std::memcpy(&size, source, sizeof(std::size_t));
-
     return s.assign((char*)(source + sizeof(std::size_t)), size);
 }

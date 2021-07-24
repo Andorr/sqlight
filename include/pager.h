@@ -19,6 +19,10 @@ class Pager {
         void *get_page(uint32_t page_num);
         void flush(uint32_t page_num);
         void close();
+        
+        uint32_t get_unused_page_num();
+
+        void print_tree(uint32_t page_num, uint32_t indentation_level);
 };
 
 #endif

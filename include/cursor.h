@@ -26,6 +26,9 @@ class Cursor {
         void insert(uint32_t key, Row* value);
         
         static Cursor from_start(Table &table);
+
+    private:
+        void split_and_insert(uint32_t key, Row* row);
 };
 
 #endif

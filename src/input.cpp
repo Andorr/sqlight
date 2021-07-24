@@ -8,6 +8,7 @@
 
 #include "input.h"
 #include "util.h"
+#include "node.h"
 
 void InputBuffer::read() {
     std::cout << this->prompt;
@@ -31,7 +32,8 @@ MetaCommandResult InputBuffer::parse_meta_command() {
         return META_COMMAND_CONSTANTS;
     } else if(this->buffer.rfind(".btree", 0) == 0) {
         return META_COMMAND_BTREE;
-    } else {
+    }
+    else {
         return META_COMMAND_UNRECOGNIZED_COMMAND;
     }
 }

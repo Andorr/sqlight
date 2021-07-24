@@ -36,7 +36,7 @@ SQLight::SQLight(std::string filename) {
 				continue;
 			case META_COMMAND_BTREE:
 				printf("Tree:\n");
-				print_leaf_node(table->pager->get_page(0));
+				table->pager->print_tree(0, 0);
 				continue;
             case META_COMMAND_UNRECOGNIZED_COMMAND:
                 std::cout << "Unrecognized command: '" << input.buffer << "'." << std::endl;
@@ -74,7 +74,7 @@ SQLight::SQLight(std::string filename) {
 			std::cout << std::endl;
 			break;
 		case EXECUTE_DUPLICATE_KEY:
-			std::cout << "Error: Duplicate key.\n" << std::endl;
+			std::cout << "Error: Duplicate key." << std::endl;
 			break;
 		case EXECUTE_NONE:
 			std::cout << "Invalid statement type";

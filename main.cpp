@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "sqlight.h"
 
 int main(int argc, char** argv) {

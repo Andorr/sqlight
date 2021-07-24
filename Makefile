@@ -17,3 +17,7 @@ cmake:
 play: play.cpp
 	g++ play.cpp -o play -std=c++20 -Wall
 	./play
+
+cleandb:
+	rm -rf ./.data/*.db
+	rm ./build/sqlight.db

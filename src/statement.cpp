@@ -19,13 +19,13 @@ ExecutionResult Statement::execute(Table &table) {
 ExecutionResult Statement::execute_insert(Table &table) {
     void *node = table.pager->get_page(table.root_page_num);
     uint32_t num_cells = *leaf_node_num_cells(node);
+
     if(num_cells >= LEAF_NODE_MAX_CELLS) {
         return EXECUTE_TABLE_FULL;
     }
 
     uint32_t key_to_insert = row_to_insert.id;
-    Cursor* cursor = table.find(key_to_insert); 
-    // Cursor cursor_end = Cursor::from_end(table);
+    Cursor* cursor = table.find(key_to_insert);
 
     if(cursor->cell_num < num_cells) {
         uint32_t key_at_index = *leaf_node_key(node, cursor->cell_num);

@@ -32,7 +32,7 @@ describe 'database' do
     end
 
     it 'prints error message when table is full' do
-        script = (0..1300).map do |i| 
+        script = (0..15).map do |i| 
             "insert #{i} user#{i} person#{i}@example.com"
         end
 
@@ -87,13 +87,13 @@ describe 'database' do
 
         expect(result).to match_array([
             "db > Constants:",
-            "ROW_SIZE: 293",
+            "ROW_SIZE: 307",
             "COMMON_NODE_HEADER_SIZE: 6",
             "LEAF_NODE_HEADER_SIZE: 10",
-            "LEAF_NODE_CELL_SIZE: 297",
+            "LEAF_NODE_CELL_SIZE: 311",
             "LEAF_NODE_SPACE_FOR_CELLS: 4086",
             "LEAF_NODE_MAX_CELLS: 13",
-            "db > ",
+            "db > Exiting...",
         ])
     end
 
@@ -110,11 +110,11 @@ describe 'database' do
             "db > Executed.",
             "db > Executed.",
             "db > Tree:",
-            "leaf (size 3)",
-            "  - 0 : 1",
-            "  - 1 : 2",
-            "  - 2 : 3",
-            "db > "
+            "- leaf (size 3)",
+            " - 1",
+            " - 2",
+            " - 3",
+            "db > Exiting..."
         ])
     end
 
@@ -129,10 +129,49 @@ describe 'database' do
         expect(result).to match_array([
             "db > Executed.",
             "db > Error: Duplicate key.",
-            "db > (1, user1, person1@example.com)",
-            "Executed.",
-            "db > ",
+            "db > Row(1, user1, person1@example.com)",
+            "db > Exiting...",
         ])
     end
 
+
+    it 'allows printing out the structure of a 3-leaf-node btree' do
+        script = (1..14).map do |i|
+            "insert #{i} user#{i} person#{i}@example.com"
+        end
+        script << ".btree"
+        script << "insert 15 user15 person15@example.com"
+        script << ".exit"
+        # script.each { |s| puts s}
+        result = run_script(script)
+
+        # result.each { |s| puts s}
+        # puts result.length
+        # puts result[0...(result.length)]
+        # expect(["true"]).to match_array(["false"]);
+
+
+        expect(result[14...(result.length)]).to match_array([
+            "db > Tree:",
+            "- internal (size 1)",
+            "  - leaf (size 7)",
+            "    - 1",
+            "    - 2",
+            "    - 3",
+            "    - 4",
+            "    - 5",
+            "    - 6",
+            "    - 7",
+            "  - key 7",
+            "  - leaf (size 7)",
+            "    - 8",
+            "    - 9",
+            "    - 10",
+            "    - 11",
+            "    - 12",
+            "    - 13",
+            "    - 14",
+            "db > Need to implement searching an internal node",
+        ])
+    end
 end

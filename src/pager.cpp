@@ -4,6 +4,7 @@
 
 #include "pager.h"
 #include "storage.h"
+#include "node.h"
 
 Pager::Pager(std::string filename) {
     // Make sure file exists
@@ -53,7 +54,7 @@ void* Pager::get_page(uint32_t page_num) {
             num_pages++;
         }
 
-        if(page_num <= num_pages && num_pages != 0) {
+        if(page_num <= num_pages /* && num_pages != 0 */) {
             file.seekg(page_num*PAGE_SIZE, std::ios::beg);
             file.readsome((char*)page, PAGE_SIZE);
             if(errno > 0) {
@@ -68,10 +69,16 @@ void* Pager::get_page(uint32_t page_num) {
         if(page_num >= num_pages) {
             num_pages = page_num + 1;      
         }
-
     }
-
     return pages[page_num];
+}
+
+/*
+Until we start recycling free pages, new pages will always
+go onto the end of the database file.
+*/
+uint32_t Pager::get_unused_page_num() {
+    return num_pages;
 }
 
 void Pager::flush(uint32_t page_num) {
@@ -106,5 +113,45 @@ void Pager::close() {
             free(page);
             pages[i] = NULL;
         }    
+    }
+}
+
+void Pager::print_tree(uint32_t page_num, uint32_t indentation_level) {
+    void *node = get_page(page_num);
+    uint32_t num_keys, child;
+
+    auto indent = [](uint32_t level) {
+        for(uint32_t i = 0; i < level; i++) {
+            printf(" ");
+        }   
+    };
+
+    switch(get_node_type(node)) {
+        case (NODE_LEAF): {
+            num_keys = *leaf_node_num_cells(node);
+            indent(indentation_level);
+            printf("- leaf (size %d)\n", num_keys);
+            for (uint32_t i = 0; i < num_keys; i++) {
+                indent(indentation_level + 1);
+                printf("- %d\n", *leaf_node_key(node, i));
+            }
+
+            break;
+        }
+        case (NODE_INTERNAL): {
+            num_keys = *internal_node_num_keys(node);
+            indent(indentation_level);
+            printf("- internal (size %d)\n", num_keys);
+            for (uint32_t i = 0; i < num_keys; i++) {
+                child = *internal_node_child(node, i);
+                print_tree(child, indentation_level + 1);
+
+                indent(indentation_level + 1);
+                printf("- key %d\n", *internal_node_key(node, i));
+            }
+            child = *internal_node_right_child(node);
+            print_tree(child, indentation_level + 1);
+            break;
+        }
     }
 }

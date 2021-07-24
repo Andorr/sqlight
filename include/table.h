@@ -20,6 +20,7 @@ class Table {
 
         Cursor* find(uint32_t key);
         void close();
+        void create_new_root(uint32_t right_child_page_num);
 
     private:
         Cursor* leaf_node_find(uint32_t page_num, uint32_t key);
