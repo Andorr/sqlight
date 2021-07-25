@@ -19,6 +19,7 @@ SQLight::SQLight(std::string filename) {
 	Table *table = new Table(filename);
 	InputBuffer input = InputBuffer();
 
+
 	while(true) {
 		input.read();
 
@@ -63,22 +64,21 @@ SQLight::SQLight(std::string filename) {
 			}
 		}
 
-		auto statement = std::get<std::shared_ptr<Statement>>(result);
+		Statement *statement = std::get<Statement*>(result);
 		ExecutionResult exec_result = statement->execute(*table);
+		delete statement;
 		switch (exec_result)
 		{
 		case EXECUTE_SUCCESS:
 			break;
 		case EXECUTE_TABLE_FULL:
-			std::cout << "Error: table full";
-			std::cout << std::endl;
+			std::cout << "Error: table full" << std::endl;
 			break;
 		case EXECUTE_DUPLICATE_KEY:
 			std::cout << "Error: Duplicate key." << std::endl;
 			break;
 		case EXECUTE_NONE:
-			std::cout << "Invalid statement type";
-			std::cout << std::endl;
+			std::cout << "Invalid statement type" << std::endl;
 			break;
 		}
 	}

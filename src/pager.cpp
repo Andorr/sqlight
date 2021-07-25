@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cstring>
 #include <memory>
 
@@ -46,7 +47,7 @@ void* Pager::get_page(uint32_t page_num) {
 
     if(pages[page_num] == NULL) {
         // Cache miss. Allocate memory and load from file
-        void *page = malloc(PAGE_SIZE);
+        void *page = std::malloc(PAGE_SIZE);
         uint32_t num_pages = file_length / PAGE_SIZE; // TODO: Fix this! Do not use file_length to check this.
         
         // We might save a partial page at the end of the file

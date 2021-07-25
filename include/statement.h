@@ -32,13 +32,15 @@ class Statement {
         StatementType type;
 
     public:
-        Row row_to_insert;
+        Row *row_to_insert;
         Statement(){};
-        Statement(StatementType type): type(type) {};
-        Statement(StatementType type, Row row): type(type), row_to_insert(row) {};
-        // ~Statement() {
-        //     std::cout << "Deref Statement" << std::endl;
-        // }
+        Statement(StatementType type): type(type), row_to_insert(NULL) {};
+        Statement(StatementType type, Row *row): type(type), row_to_insert(row) {};
+        ~Statement() {
+            if(row_to_insert != NULL) {
+                delete row_to_insert;
+            }
+        }
         ExecutionResult execute_insert(Table &table);
         ExecutionResult execute_select(Table &table);
         ExecutionResult execute(Table &table);

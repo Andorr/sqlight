@@ -10,6 +10,7 @@
 
 Table::Table(std::string filename) {
     Pager *pager = new Pager(filename);
+
     this->pager = pager;
     this->root_page_num = 0;
     

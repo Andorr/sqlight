@@ -22,7 +22,6 @@ void Cursor::advance() {
 
 void Cursor::insert(uint32_t key, Row* value) {
     void *node = table.pager->get_page(page_num);
-
     int32_t num_cells = *leaf_node_num_cells(node);
 
     if(num_cells >= LEAF_NODE_MAX_CELLS) {
@@ -40,9 +39,6 @@ void Cursor::insert(uint32_t key, Row* value) {
     *(leaf_node_num_cells(node)) += 1;
     *(leaf_node_key(node, cell_num)) = key;
     value->serialize(leaf_node_value(node, cell_num));
-
-
-    uint32_t written_key = *(leaf_node_key(node, cell_num));
 }
 
 void Cursor::split_and_insert(uint32_t key, Row* row) {
@@ -63,7 +59,7 @@ void Cursor::split_and_insert(uint32_t key, Row* row) {
      * evenly between old (left) and new (right) nodes.
      * Starting from the right, move each key to correct position.
      */
-    for(uint32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) {
+    for(int32_t i = LEAF_NODE_MAX_CELLS; i >= 0; i--) {
         void* destination_node;
         
         if(i >= LEAF_NODE_LEFT_SPLIT_COUNT) {

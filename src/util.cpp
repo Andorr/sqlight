@@ -20,8 +20,8 @@ std::vector<std::string> util::string_split(std::string s, char delimiter) {
 
 void util::serialize_string(std::string s, uint8_t *dest) {
     std::size_t size = s.size();
-    std::memcpy(dest + sizeof(std::size_t), (char*)s.data(), size);
     std::memcpy(dest, &size, sizeof(std::size_t));
+    std::memcpy(dest + sizeof(std::size_t), (char*)s.c_str(), size);
 }
 
 std::string util::deserialize_string(std::string &s, uint8_t *source) {

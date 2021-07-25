@@ -5,6 +5,7 @@
 #include "util.h"
 
 void* Row::serialize(void *destination) {
+
     uint8_t *dest = (uint8_t*)destination;
     std::memcpy(dest + ID_OFFSET, &id, ID_SIZE);
     

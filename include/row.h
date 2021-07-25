@@ -6,7 +6,10 @@
 #include "storage.h"
 
 class Row {
+
+
     public:
+        uint32_t row_id = -1;
         uint32_t id;
         std::string username = "";
         std::string email = "";

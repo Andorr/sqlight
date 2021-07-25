@@ -5,6 +5,9 @@ build:
 run:
 	./build/main .data/sqlight.db
 
+memory:
+	valgrind ./build/main .data/sqlight.db
+
 test:
 	./build/tests
 
@@ -20,4 +23,5 @@ play: play.cpp
 
 cleandb:
 	rm -rf ./.data/*.db
-	rm ./build/sqlight.db
+	rm -rf ./build/sqlight.db
+	rm -rf ./sqlight.db

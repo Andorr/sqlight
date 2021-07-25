@@ -20,11 +20,7 @@ ExecutionResult Statement::execute_insert(Table &table) {
     void *node = table.pager->get_page(table.root_page_num);
     uint32_t num_cells = *leaf_node_num_cells(node);
 
-    if(num_cells >= LEAF_NODE_MAX_CELLS) {
-        return EXECUTE_TABLE_FULL;
-    }
-
-    uint32_t key_to_insert = row_to_insert.id;
+    uint32_t key_to_insert = row_to_insert->id;
     Cursor* cursor = table.find(key_to_insert);
 
     if(cursor->cell_num < num_cells) {
@@ -34,7 +30,7 @@ ExecutionResult Statement::execute_insert(Table &table) {
         }
     }
 
-    cursor->insert(row_to_insert.id, &row_to_insert);
+    cursor->insert(row_to_insert->id, row_to_insert);
     std::cout << "Executed." << std::endl;
     return EXECUTE_SUCCESS;
 }
