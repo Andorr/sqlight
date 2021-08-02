@@ -45,8 +45,7 @@ Cursor* Table::find(uint32_t key) {
     if(get_node_type(root_node) == NODE_LEAF) {
         return leaf_node_find(root_page_num, key);
     } else {
-        printf("TODO: Need to implement searching an internal node\n");
-        exit(EXIT_FAILURE);
+        return internal_node_find(root_page_num, key);
     }
 }
 
@@ -77,6 +76,56 @@ Cursor* Table::leaf_node_find(uint32_t page_num, uint32_t key) {
     return cursor;
 }
 
+Cursor* Table::internal_node_find(uint32_t page_num, uint32_t key) {
+    void *node = pager->get_page(page_num);
+    
+    uint32_t child_index = internal_node_find_child(node, key);
+    uint32_t child_num = *internal_node_child(node, child_index);
+    void *child = pager->get_page(child_num);
+    switch(get_node_type(child)) {
+        case NODE_LEAF:
+            return leaf_node_find(child_num, key);
+        case NODE_INTERNAL:
+            return internal_node_find(child_num, key);
+    }
+    return NULL;
+}
+
+void Table::internal_node_insert(uint32_t parent_page_num, uint32_t child_page_num) {
+
+    void *parent = pager->get_page(parent_page_num);
+    void *child = pager->get_page(child_page_num);
+    uint32_t child_max_key = get_node_max_key(child);
+    uint32_t index = internal_node_find_child(parent, child_max_key);
+
+    uint32_t original_num_keys = *internal_node_num_keys(parent);
+    *internal_node_num_keys(parent) = original_num_keys + 1;
+
+    if(original_num_keys >= INTERNAL_NODE_MAX_CELLS) {
+        printf("Need to implement splitting internal node\n");
+        exit(EXIT_FAILURE);
+    }
+
+    uint32_t right_child_page_num = *internal_node_right_child(parent);
+    void* right_child = pager->get_page(right_child_page_num);
+
+    if(child_max_key > get_node_max_key(right_child)) {
+        // Replace right child
+        *internal_node_child(parent, original_num_keys) = right_child_page_num;
+        *internal_node_key(parent, original_num_keys) = get_node_max_key(right_child);
+        *internal_node_right_child(parent) = child_page_num;
+    } else {
+        for(uint32_t i = original_num_keys; i > index; i--) {
+            void* destination = internal_node_cell(parent, i);
+            void* source = internal_node_cell(parent, i - 1);
+            std::memcpy(destination, source, INTERNAL_NODE_CELL_SIZE);
+        }
+        *internal_node_child(parent, index) = child_page_num;
+        *internal_node_key(parent, index) = child_max_key;
+    }
+
+}
+
 void Table::create_new_root(uint32_t right_child_page_num) {
     /*
         Handle spliutting the root.
@@ -103,5 +152,7 @@ void Table::create_new_root(uint32_t right_child_page_num) {
     uint32_t left_child_max_key = get_node_max_key(left_child);
     *internal_node_key(root, 0) = left_child_max_key;
     *internal_node_right_child(root) = right_child_page_num;
+    *node_parent(left_child) = root_page_num;
+    *node_parent(right_child) = root_page_num;
 }
 

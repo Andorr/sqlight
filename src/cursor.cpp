@@ -16,23 +16,35 @@ void Cursor::advance() {
 
     cell_num += 1;
     if(cell_num >= (*leaf_node_num_cells(node))) {
-        this->end_of_table = true;
+        // Advance to next leaf n
+
+        uint32_t next_page_num = *leaf_node_next_leaf(node);
+        if(next_page_num == 0) {
+            // We are the rightmost leaf.
+            end_of_table = true;
+        } else {
+            page_num = next_page_num;
+            cell_num = 0;
+        }
     }
 }
 
 void Cursor::insert(uint32_t key, Row* value) {
     void *node = table.pager->get_page(page_num);
-    int32_t num_cells = *leaf_node_num_cells(node);
+    uint32_t num_cells = *leaf_node_num_cells(node);
 
     if(num_cells >= LEAF_NODE_MAX_CELLS) {
         // Node is full
         split_and_insert(key, value);
+        return;
     }
 
     if(cell_num < num_cells) {
         // We want to insert it where an existing cell lives. Make a room for a new cell.
-        for(uint32_t i = num_cells; i > cell_num; i--) {
-            std::memcpy(leaf_node_cell(node, i), leaf_node_cell(node, i - 1), LEAF_NODE_CELL_SIZE);   
+        for(int32_t i = num_cells; i > cell_num; i--) {
+            void *dst = leaf_node_cell(node, i);
+            void *src = leaf_node_cell(node, i - 1);
+            std::memcpy(dst, src, LEAF_NODE_CELL_SIZE);   
         }
     }
 
@@ -50,9 +62,13 @@ void Cursor::split_and_insert(uint32_t key, Row* row) {
      */
 
     void* old_node = table.pager->get_page(page_num);
+    uint32_t old_max = get_node_max_key(old_node);
     uint32_t new_page_num = table.pager->get_unused_page_num();
     void* new_node = table.pager->get_page(new_page_num);
     initialize_leaf_node(new_node);
+    *node_parent(new_node) = *node_parent(old_node);
+    *leaf_node_next_leaf(new_node) = *leaf_node_next_leaf(old_node);
+    *leaf_node_next_leaf(old_node) = new_page_num;
 
     /**
      * All existing keys plus new key should be divided 
@@ -72,7 +88,8 @@ void Cursor::split_and_insert(uint32_t key, Row* row) {
         void* destination = leaf_node_cell(destination_node, index_within_node);
 
         if(i == cell_num) {
-            row->serialize(destination);
+            row->serialize(leaf_node_value(destination_node, index_within_node));
+            *leaf_node_key(destination_node, index_within_node) = key;
         } else if(i > cell_num) {
             std::memcpy(destination, leaf_node_cell(old_node, i - 1), LEAF_NODE_CELL_SIZE);
         } else {
@@ -87,14 +104,22 @@ void Cursor::split_and_insert(uint32_t key, Row* row) {
     if(is_node_root(old_node)) {
         return table.create_new_root(new_page_num);
     } else {
-        printf("TODO: Need to implement updating parent with split\n");
-        exit(EXIT_FAILURE);
+        uint32_t parent_page_num = *node_parent(old_node);
+        uint32_t new_max = get_node_max_key(old_node);
+        void *parent = table.pager->get_page(parent_page_num);
+
+        update_internal_node_key(parent, old_max, new_max);
+        table.internal_node_insert(parent_page_num, new_page_num);
     }
 }
 
 Cursor Cursor::from_start(Table &table) {
-    void *root_node = table.pager->get_page(table.root_page_num);
-    uint32_t num_cells = *leaf_node_num_cells(root_node);
-    return Cursor(table, table.root_page_num, 0, num_cells == 0);
+    Cursor *cursor = table.find(0);
+
+    void *node = table.pager->get_page(cursor->page_num);
+    uint32_t num_cells = *leaf_node_num_cells(node);
+    cursor->end_of_table = (num_cells == 0);
+
+    return *cursor;
 }
 

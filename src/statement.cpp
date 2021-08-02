@@ -39,6 +39,7 @@ ExecutionResult Statement::execute_select(Table &table) {
     Cursor cursor = Cursor::from_start(table);
 
     while(!cursor.end_of_table) {
+        void* node = cursor.value();
         std::shared_ptr<Row> row = Row::deserialize(cursor.value());
         std::cout << *row << std::endl;
         cursor.advance();
